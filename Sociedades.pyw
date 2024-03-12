@@ -55,21 +55,20 @@ def guardar():
     miConexion=sqlite3.connect("jurQ_DB")
     miCursor=miConexion.cursor()
 
-    #print("Guardar")
     datos=miSociedad.get().upper(),miTipo.get().upper(),miCif.get().upper(),miDireccion.get()
     
-    if botonNuevo['state'] == "enabled":
+    if botonNuevo['state'] == "disabled":
 
         miCursor.execute ("INSERT INTO SOCIEDADES VALUES (NULL,?,?,?,?)", (datos))
         miConexion.commit()
 
-        messagebox.showinfo("Tabla SOCIEDADES. Nuevo registro", "Registro insertado con éxito")
+        #messagebox.showinfo("Tabla SOCIEDADES. Nuevo registro", "Registro insertado con éxito")
     else:
         miCursor.execute ("UPDATE SOCIEDADES SET NOMBRE=?, TIPO=?, CIF=?, DIRECCION=? " +
                     "WHERE ID=" + miId.get(),(datos))
         miConexion.commit()
 
-        messagebox.showinfo("Tabla SOCIEDADES. Actualización de registros", "Registro Actualizado con éxito")
+        #messagebox.showinfo("Tabla SOCIEDADES. Actualización de registros", "Registro Actualizado con éxito")
 
     limpiarCampos()
     cuadroID.config(state="normal")
