@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
 import sqlite3
+import re
 
 root=Tk()
 #root.iconbitmap("T.ico")
@@ -54,65 +55,72 @@ def guardar():
     miConexion=sqlite3.connect("jurQ_DB")
     miCursor=miConexion.cursor()
 
-    if botonGuardar.cget("text")=="Guardar":
-        #print("Guardar")
-        datos=miSociedad.get(),miTipo.get(),miCif.get(),miDireccion.get()
-        
+    #print("Guardar")
+    datos=miSociedad.get().upper(),miTipo.get().upper(),miCif.get().upper(),miDireccion.get()
+    
+    if botonNuevo['state'] == "enabled":
+
         miCursor.execute ("INSERT INTO SOCIEDADES VALUES (NULL,?,?,?,?)", (datos))
         miConexion.commit()
-    
-        messagebox.showinfo("Tabla SOCIEDADES", "Registro insertado con éxito")
 
-        limpiarCampos()
-        cuadroID.config(state="normal")
-        botonGuardar.config(state="normal", text="Buscar")
-        botonNuevo.config(state="normal")
-        listbox.delete(0,END)
-        cargaLista()
-            
-    elif botonGuardar.cget("text")=="Buscar":
-        #print("Buscar para Id=", miId.get())
-
-        datos=[miId.get(),miSociedad.get(),miTipo.get(),miCif.get(),miDireccion.get()]
-        mySql="SELECT * FROM SOCIEDADES WHERE "
-        if datos[0]!="":
-            mySql=mySql + 'ID=' + datos[0]
-            if datos[1]!="":
-                mySql=mySql + ' AND NOMBRE="' + datos[1] + '"'
-            if datos[3]!="":
-                mySql=mySql + ' AND CIF="' + datos[3] + '"'    
-        elif datos[1]!="":
-            mySql=mySql + 'NOMBRE="' + datos[1] + '"'
-            if datos[3]!="":
-                mySql=mySql + ' AND CIF="' + datos[3] + '"'
-        elif datos[3]!="":
-            mySql=mySql + 'CIF="' + datos[3] + '"'
-        
-        #print(mySql)
-        
-        miCursor.execute(mySql)
-        
-        laSociedad=miCursor.fetchall()
-
-        for soc in laSociedad:
-            miId.set(soc[0])
-            miSociedad.set(soc[1])
-            miTipo.set(soc[2])
-            miCif.set(soc[3])
-            miDireccion.set(soc[4])
-            #print(soc)
-            
-
+        messagebox.showinfo("Tabla SOCIEDADES. Nuevo registro", "Registro insertado con éxito")
+    else:
+        miCursor.execute ("UPDATE SOCIEDADES SET NOMBRE=?, TIPO=?, CIF=?, DIRECCION=? " +
+                    "WHERE ID=" + miId.get(),(datos))
         miConexion.commit()
 
-        botonEliminar.config(state="normal")
+        messagebox.showinfo("Tabla SOCIEDADES. Actualización de registros", "Registro Actualizado con éxito")
 
-    else:
-        t=0
-        #print("Ninguna")
-
-    
+    limpiarCampos()
+    cuadroID.config(state="normal")
+    botonGuardar.config(state="normal")
+    botonNuevo.config(state="normal")
+    listbox.delete(0,END)
+    cargaLista()
+            
     #miConexion.close()
+
+def buscar():
+    miConexion=sqlite3.connect("jurQ_DB")
+    miCursor=miConexion.cursor()
+
+
+    #print("Buscar para Id=", miId.get())
+
+    datos=[miId.get(),miSociedad.get(),miTipo.get(),miCif.get(),miDireccion.get()]
+    mySql="SELECT * FROM SOCIEDADES WHERE "
+    if datos[0]!="":
+        mySql=mySql + 'ID=' + datos[0]
+        if datos[1]!="":
+            mySql=mySql + ' AND NOMBRE="' + datos[1] + '"'
+        if datos[3]!="":
+            mySql=mySql + ' AND CIF="' + datos[3] + '"'    
+    elif datos[1]!="":
+        mySql=mySql + 'NOMBRE="' + datos[1] + '"'
+        if datos[3]!="":
+            mySql=mySql + ' AND CIF="' + datos[3] + '"'
+    elif datos[3]!="":
+        mySql=mySql + 'CIF="' + datos[3] + '"'
+    
+    #print(mySql)
+    
+    miCursor.execute(mySql)
+    
+    laSociedad=miCursor.fetchall()
+
+    for soc in laSociedad:
+        miId.set(soc[0])
+        miSociedad.set(soc[1])
+        miTipo.set(soc[2])
+        miCif.set(soc[3])
+        miDireccion.set(soc[4])
+        #print(soc)
+        
+
+    miConexion.commit()
+
+    botonEliminar.config(state="normal")
+
 
 def cargaLista():
     miConexion=sqlite3.connect("jurQ_DB")
@@ -254,6 +262,15 @@ scrollbar.grid(row=1,column=2, sticky="nsew")
 
 listbox.config(width=90,yscrollcommand=scrollbar.set)
 
+def prueba(event):
+    cs = listbox.curselection()
+    cadena=listbox.get(cs)
+    buscoID=cadena[0]
+    miId.set(buscoID)
+    buscar()
+
+listbox.bind('<Double-1>', prueba)
+
 cargaLista()
 scrollbar.config(command=listbox.yview)
 #==========BOTONES==========
@@ -269,18 +286,21 @@ botonLimpiar=Button(miFrame2,text="Limpiar", font=("Speak Pro",9), bg="darkolive
 botonLimpiar.grid(row=0,column=3,sticky="e", padx=10, pady=10)
 
 
-botonGuardar=Button(miFrame5,text="Buscar", font=("Speak Pro",11), bg="darkolivegreen1",fg = "blue",
-                     cursor="hand2", width=10, command=guardar)
-botonGuardar.grid(row=1,column=2,sticky="e", padx=10, pady=10)
-#botonGuardar.place(relx=0.80,rely=0.5,width=100,anchor='e')
-
 botonCancelar=Button(miFrame5,text="Salir", font=("Speak Pro",11),fg = "blue", 
                      cursor="hand2", width=10, command=salirAplicacion)
-botonCancelar.grid(row=1,column=1,sticky="e", padx=10, pady=10)
+botonCancelar.grid(row=1,column=0,sticky="e", padx=10, pady=10)
 
 botonNuevo=Button(miFrame5,text="Nuevo", font=("Speak Pro",11),fg = "blue", 
                      cursor="hand2",width=10, command=nuevo)
-botonNuevo.grid(row=1,column=0,sticky="e", padx=10, pady=10)
+botonNuevo.grid(row=1,column=1,sticky="e", padx=10, pady=10)
+
+botonBuscar=Button(miFrame5,text="Buscar", font=("Speak Pro",11), fg = "blue",
+                     cursor="hand2", width=10, command=buscar)
+botonBuscar.grid(row=1,column=2,sticky="e", padx=10, pady=10)
+
+botonGuardar=Button(miFrame5,text="Guardar", font=("Speak Pro",11), bg="darkolivegreen1",fg = "blue",
+                     cursor="hand2", width=10, command=guardar)
+botonGuardar.grid(row=1,column=3,sticky="e", padx=10, pady=10)
 
 botonEliminar=Button(miFrame5,text="Eliminar", font=("Speak Pro",11),bg="orange",fg = "blue", 
                      cursor="hand2",width=10, command=eliminaRegistro, disabledforeground="gray30")
