@@ -3,13 +3,18 @@ from tkinter import messagebox
 from tkinter import ttk
 import sqlite3
 import re
+from querys import *
+
+dbName="jurQ_DB"
+
+#app.setStyleSheet(open("style.css", "r").read())
 
 root=Tk()
 #root.iconbitmap("T.ico")
 root.title("Sociedad")
 
 #==========FUNCIONES==========
-def ConexionBBDD():
+""" def ConexionBBDD():
     #print("entrada función ConexionBBDD")
     miConexion=sqlite3.connect("jurQ_DB")
 
@@ -23,7 +28,7 @@ def ConexionBBDD():
     except:
         a=0
         #messagebox.showwarning("¡ATENCIÓN!", "La BBDD ya existe")
-
+    miConexion.close() """
 
 def limpiarCampos():
     miId.set("")
@@ -38,10 +43,6 @@ def nuevo():
     cuadroID.config(state="disabled")
     botonGuardar.config(state="disabled", text="Guardar")
     botonNuevo.config(state="disabled")
-    
-    """ miConexion=sqlite3.connect(".jurQ_DB")
-    miCursor=miConexion.cursor()
-    miCursor.execute("SELECT MAX(ID) FROM SOCIEDADES;") """
 
 def habilitaBoton(e):
 
@@ -77,7 +78,7 @@ def guardar():
     listbox.delete(0,END)
     cargaLista()
             
-    #miConexion.close()
+    miConexion.close()
 
 def buscar():
     miConexion=sqlite3.connect("jurQ_DB")
@@ -119,6 +120,7 @@ def buscar():
     miConexion.commit()
 
     botonEliminar.config(state="normal")
+    miConexion.close()
 
 
 def cargaLista():
@@ -129,9 +131,10 @@ def cargaLista():
     miCursor.execute(mySql)
     
     laSociedad=miCursor.fetchall()
-
+    
     for soc in laSociedad:
         listbox.insert(END, (soc[0], "|", soc[3],"|", soc[1], ",", soc[2]))
+    miConexion.close()
 
 def eliminaRegistro():
     miConexion=sqlite3.connect("jurQ_DB")
@@ -146,7 +149,7 @@ def eliminaRegistro():
     limpiarCampos()
     listbox.delete(0,END)
     cargaLista()
-
+    miConexion.close()
 
 def salirAplicacion():
     valor=messagebox.askquestion("Salir", "¿Deseas salir de la aplicaión?")
@@ -156,10 +159,7 @@ def salirAplicacion():
         root.destroy()
 
 
-
-ConexionBBDD()
-#print("Conexion BBDD")
-
+ConexionBBDD(dbName, "CREATE TABLE SOCIEDADES (ID INTEGER PRIMARY KEY AUTOINCREMENT, NOMBRE VARCHAR(50), TIPO VARCHAR(6), CIF VARCHAR(12), DIRECCION VARCHAR(50))")
 
 
 #==========BARRA MENÚ==========
@@ -306,7 +306,8 @@ botonEliminar=Button(miFrame5,text="Eliminar", font=("Speak Pro",11),bg="orange"
 botonEliminar.grid(row=1,column=4,sticky="e", padx=10, pady=10)
 botonEliminar.config(state="disabled")
 
-
+""" boton = ttk.Button(text="¡Hola, mundo!", command=partial(saludar, root)) -->> Llamar a la función
+del boton con parametro (en este caso, formulario) """
 #==========EVENTOS==========
 
 
