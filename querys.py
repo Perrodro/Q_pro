@@ -29,6 +29,20 @@ def buscarReg(dbName, myQuery, datos):
 
     return laSociedad
 
+def seleccionarReg(dbName, myQuery, datos):
+
+    miConexion=sqlite3.connect(dbName)
+    miCursor=miConexion.cursor()
+
+    miCursor.execute(myQuery)
+    
+    laSociedad=miCursor.fetchall()
+    
+    miConexion.commit()
+    miConexion.close()
+
+    return laSociedad
+
 def eliminaReg(dbName, myQuery):
     miConexion=sqlite3.connect(dbName)
     miCursor=miConexion.cursor()
