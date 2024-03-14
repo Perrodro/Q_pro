@@ -3,7 +3,7 @@ from tkinter import messagebox
 from tkinter import ttk
 import sqlite3
 import re
-from querys import *
+import querys
 
 dbName="jurQ_DB"
 
@@ -14,29 +14,18 @@ root=Tk()
 root.title("Sociedad")
 
 #==========FUNCIONES==========
-""" def ConexionBBDD():
-    #print("entrada función ConexionBBDD")
-    miConexion=sqlite3.connect("jurQ_DB")
-
-    miCursor=miConexion.cursor()
-
-    miSQL="CREATE TABLE SOCIEDADES (ID INTEGER PRIMARY KEY AUTOINCREMENT, NOMBRE VARCHAR(50), TIPO VARCHAR(6), CIF VARCHAR(12), DIRECCION VARCHAR(50))"
-    
-    try:
-        miCursor.execute(miSQL)
-        messagebox.showinfo("BBDD", "BBDD Creada con éxito.")
-    except:
-        a=0
-        #messagebox.showwarning("¡ATENCIÓN!", "La BBDD ya existe")
-    miConexion.close() """
 
 def limpiarCampos():
+    
     miId.set("")
     miSociedad.set("")
     miTipo.set("")
     miCif.set("")
     miDireccion.set("")
-    
+    cargaLista()
+    cuadroID.config(state="normal")
+    botonNuevo.config(state="normal")
+
 def nuevo():
     limpiarCampos()
     #cuadroID.config(state="disabled", disabledbackground="gray60")
@@ -53,22 +42,13 @@ def habilitaBoton(e):
         botonGuardar.config(state="normal")
 
 def guardar():
-    miConexion=sqlite3.connect("jurQ_DB")
-    miCursor=miConexion.cursor()
-
     datos=miSociedad.get().upper(),miTipo.get().upper(),miCif.get().upper(),miDireccion.get()
     
     if botonNuevo['state'] == "disabled":
-
-        miCursor.execute ("INSERT INTO SOCIEDADES VALUES (NULL,?,?,?,?)", (datos))
-        miConexion.commit()
-
+        querys.insertaReg(dbName, "INSERT INTO SOCIEDADES VALUES (NULL,?,?,?,?)", datos)
         #messagebox.showinfo("Tabla SOCIEDADES. Nuevo registro", "Registro insertado con éxito")
     else:
-        miCursor.execute ("UPDATE SOCIEDADES SET NOMBRE=?, TIPO=?, CIF=?, DIRECCION=? " +
-                    "WHERE ID=" + miId.get(),(datos))
-        miConexion.commit()
-
+        querys.actualizaReg(dbName,"UPDATE SOCIEDADES SET NOMBRE=?, TIPO=?, CIF=?, DIRECCION=? WHERE ID=" + miId.get(),datos)
         #messagebox.showinfo("Tabla SOCIEDADES. Actualización de registros", "Registro Actualizado con éxito")
 
     limpiarCampos()
@@ -77,36 +57,40 @@ def guardar():
     botonNuevo.config(state="normal")
     listbox.delete(0,END)
     cargaLista()
-            
-    miConexion.close()
 
 def buscar():
-    miConexion=sqlite3.connect("jurQ_DB")
-    miCursor=miConexion.cursor()
-
-
-    #print("Buscar para Id=", miId.get())
-
     datos=[miId.get(),miSociedad.get(),miTipo.get(),miCif.get(),miDireccion.get()]
     mySql="SELECT * FROM SOCIEDADES WHERE "
     if datos[0]!="":
-        mySql=mySql + 'ID=' + datos[0]
+        mySql=mySql + 'ID LIKE "%' + datos[0] + '%"'
         if datos[1]!="":
-            mySql=mySql + ' AND NOMBRE="' + datos[1] + '"'
+            mySql=mySql + ' AND NOMBRE LIKE "%' + datos[1] + '%"'
         if datos[3]!="":
-            mySql=mySql + ' AND CIF="' + datos[3] + '"'    
+            mySql=mySql + ' AND CIF LIKE "%' + datos[3] + '%"'    
     elif datos[1]!="":
-        mySql=mySql + 'NOMBRE="' + datos[1] + '"'
+        mySql=mySql + 'NOMBRE LIKE "%' + datos[1] + '%"'
         if datos[3]!="":
-            mySql=mySql + ' AND CIF="' + datos[3] + '"'
+            mySql=mySql + ' AND CIF LIKE "%' + datos[3] + '%"'
     elif datos[3]!="":
-        mySql=mySql + 'CIF="' + datos[3] + '"'
+        mySql=mySql + 'CIF LIKE "%' + datos[3] + '%"'
     
-    #print(mySql)
+    print(mySql)
     
-    miCursor.execute(mySql)
+    laSociedad=querys.buscarReg(dbName,mySql, datos)
+
+    print (laSociedad)
+
+    listbox.delete(0,END)
+    for soc in laSociedad:
+        listbox.insert(END, (soc[0], "|", soc[3],"|", soc[1], ",", soc[2]))
+   
+    botonEliminar.config(state="normal")
     
-    laSociedad=miCursor.fetchall()
+def sel():
+    datos=[miId.get(),miSociedad.get(),miTipo.get(),miCif.get(),miDireccion.get()]
+    mySql="SELECT * FROM SOCIEDADES WHERE ID=" + miId.get()
+    
+    laSociedad=querys.buscarReg(dbName,mySql, datos)
 
     for soc in laSociedad:
         miId.set(soc[0])
@@ -114,14 +98,8 @@ def buscar():
         miTipo.set(soc[2])
         miCif.set(soc[3])
         miDireccion.set(soc[4])
-        #print(soc)
-        
-
-    miConexion.commit()
-
+    
     botonEliminar.config(state="normal")
-    miConexion.close()
-
 
 def cargaLista():
     miConexion=sqlite3.connect("jurQ_DB")
@@ -137,20 +115,13 @@ def cargaLista():
     miConexion.close()
 
 def eliminaRegistro():
-    miConexion=sqlite3.connect("jurQ_DB")
-    miCursor=miConexion.cursor()
-
-    miCursor.execute("DELETE FROM SOCIEDADES WHERE ID=" + miId.get())
-
-    miConexion.commit()
-
-    messagebox.showinfo("BBDD", "Registro eliminado con éxito")
-
+    
+    querys.eliminaReg(dbName, "DELETE FROM SOCIEDADES WHERE ID=" + miId.get())
+    
     limpiarCampos()
     listbox.delete(0,END)
     cargaLista()
-    miConexion.close()
-
+    
 def salirAplicacion():
     valor=messagebox.askquestion("Salir", "¿Deseas salir de la aplicaión?")
 
@@ -159,7 +130,7 @@ def salirAplicacion():
         root.destroy()
 
 
-ConexionBBDD(dbName, "CREATE TABLE SOCIEDADES (ID INTEGER PRIMARY KEY AUTOINCREMENT, NOMBRE VARCHAR(50), TIPO VARCHAR(6), CIF VARCHAR(12), DIRECCION VARCHAR(50))")
+querys.ConexionBBDD(dbName, "CREATE TABLE SOCIEDADES (ID INTEGER PRIMARY KEY AUTOINCREMENT, NOMBRE VARCHAR(50), TIPO VARCHAR(6), CIF VARCHAR(12), DIRECCION VARCHAR(50))")
 
 
 #==========BARRA MENÚ==========
@@ -266,7 +237,7 @@ def prueba(event):
     cadena=listbox.get(cs)
     buscoID=cadena[0]
     miId.set(buscoID)
-    buscar()
+    sel()
 
 listbox.bind('<Double-1>', prueba)
 
