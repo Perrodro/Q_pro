@@ -45,10 +45,10 @@ def guardar():
     datos=miSociedad.get().upper(),miTipo.get().upper(),miCif.get().upper(),miDireccion.get()
     
     if botonNuevo['state'] == "disabled":
-        querys.insertaReg(dbName, "INSERT INTO SOCIEDADES VALUES (NULL,?,?,?,?)", datos)
+        querys.devReg(dbName, "INSERT INTO SOCIEDADES VALUES (NULL,?,?,?,?)",True, datos)
         #messagebox.showinfo("Tabla SOCIEDADES. Nuevo registro", "Registro insertado con éxito")
     else:
-        querys.actualizaReg(dbName,"UPDATE SOCIEDADES SET NOMBRE=?, TIPO=?, CIF=?, DIRECCION=? WHERE ID=" + miId.get(),datos)
+        querys.devReg(dbName,"UPDATE SOCIEDADES SET NOMBRE=?, TIPO=?, CIF=?, DIRECCION=? WHERE ID=" + miId.get(), True,datos)
         #messagebox.showinfo("Tabla SOCIEDADES. Actualización de registros", "Registro Actualizado con éxito")
 
     limpiarCampos()
@@ -61,24 +61,17 @@ def guardar():
 def buscar():
     datos=[miId.get(),miSociedad.get(),miTipo.get(),miCif.get(),miDireccion.get()]
     mySql="SELECT * FROM SOCIEDADES WHERE "
-    if datos[0]!="":
-        mySql=mySql + 'ID LIKE "%' + datos[0] + '%"'
-        if datos[1]!="":
-            mySql=mySql + ' AND NOMBRE LIKE "%' + datos[1] + '%"'
-        if datos[3]!="":
-            mySql=mySql + ' AND CIF LIKE "%' + datos[3] + '%"'    
-    elif datos[1]!="":
-        mySql=mySql + 'NOMBRE LIKE "%' + datos[1] + '%"'
-        if datos[3]!="":
-            mySql=mySql + ' AND CIF LIKE "%' + datos[3] + '%"'
-    elif datos[3]!="":
-        mySql=mySql + 'CIF LIKE "%' + datos[3] + '%"'
+    mySql=mySql + 'ID LIKE "%' + datos[0] + '%"'
+    mySql=mySql + ' AND NOMBRE LIKE "%' + datos[1] + '%"'
+    mySql=mySql + ' AND TIPO LIKE "%' + datos[2] + '%"'
+    mySql=mySql + ' AND CIF LIKE "%' + datos[3] + '%"'
+    mySql=mySql + ' AND DIRECCION LIKE "%' + datos[4] + '%"'
     
-    print(mySql)
+    #print(mySql)
     
-    laSociedad=querys.buscarReg(dbName,mySql, datos)
+    laSociedad=querys.devReg(dbName,mySql, True)
 
-    print (laSociedad)
+    #print (laSociedad)
 
     listbox.delete(0,END)
     for soc in laSociedad:

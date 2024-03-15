@@ -15,6 +15,35 @@ def ConexionBBDD(dbName, myQuery):
         #messagebox.showwarning("¡ATENCIÓN!", "La BBDD ya existe")
     miConexion.close()
 
+def devReg(dbName, myQuery, dev=False, datos=""):
+    """Parametros de la función:
+        dbName: Nombre de la base de datos
+        myQuery: Consulta completa. Comoponer antes de hacer la llamada
+        dev: 
+        datos: lista de datos con valores de consulta. Parámetro opcional"""
+    miConexion=sqlite3.connect(dbName)
+    miCursor=miConexion.cursor()
+
+    if dev==True:
+        if datos!="":
+            miCursor.execute(myQuery, (datos))
+            laSociedad=miCursor.fetchall()
+            miConexion.commit()
+            miConexion.close()
+            return laSociedad
+        else:
+            miCursor.execute(myQuery)
+            laSociedad=miCursor.fetchall()
+            miConexion.commit()
+            miConexion.close()
+            return laSociedad
+    else:
+        miCursor.execute(myQuery)
+        miConexion.commit()
+        miConexion.close()
+        
+
+
 def buscarReg(dbName, myQuery, datos):
     
     miConexion=sqlite3.connect(dbName)
