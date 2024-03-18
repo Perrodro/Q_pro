@@ -16,6 +16,7 @@ class MultiListbox(Frame):
             lb.bind('<Leave>', lambda e: 'break')
             lb.bind('<B2-Motion>', lambda e, s=self: s._b2motion(e.x, e.y))
             lb.bind('<Button-2>', lambda e, s=self: s._button2(e.x, e.y))
+            lb.bind('<Double-1>', self._double1)
         frame = Frame(self); frame.pack(side=LEFT, fill=Y)
         Label(frame, borderwidth=1, relief=RAISED).pack(fill=X)
         sb = Scrollbar(frame, orient=VERTICAL, command=self._scroll)
@@ -85,8 +86,11 @@ class MultiListbox(Frame):
     def selection_set(self, first, last=None):
         for l in self.lists:
             l.selection_set(first, last)
+        
+    def _double1(self, event):
+        self.event_generate("<<DoubleClick>>")
 
-
+""" 
 tk = Tk()
 Label(tk, text='Prueba clase MLb').pack()
 mlb = MultiListbox(tk, (('Asunto', 40), ('Remite', 20), ('Fecha', 10)))
@@ -95,3 +99,4 @@ for i in range(100):
  
 mlb.pack(expand=YES,fill=BOTH)
 tk.mainloop()
+ """

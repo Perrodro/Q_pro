@@ -3,7 +3,7 @@ from tkinter import messagebox
 from tkinter import ttk
 import sqlite3
 import re
-import querys
+import querys, MultiListBox
 
 dbName="jurQ_DB"
 
@@ -104,7 +104,8 @@ def cargaLista():
     laSociedad=miCursor.fetchall()
     
     for soc in laSociedad:
-        listbox.insert(END, (soc[0], "|", soc[3],"|", soc[1], ",", soc[2]))
+        #listbox.insert(END, (soc[0], "|", soc[3],"|", soc[1], ",", soc[2]))
+        mlb.insert(END, (soc[0], soc[3], soc[1], soc[2]))
     miConexion.close()
 
 def eliminaRegistro():
@@ -112,7 +113,7 @@ def eliminaRegistro():
     querys.eliminaReg(dbName, "DELETE FROM SOCIEDADES WHERE ID=" + miId.get())
     
     limpiarCampos()
-    listbox.delete(0,END)
+    mlb.delete(0,END)
     cargaLista()
     
 def salirAplicacion():
@@ -212,30 +213,44 @@ miFrame6=Frame()
 miFrame6.pack(fill="both", expand=True) #Fill usa nomenclatura deejes de coordenadas X, Y, both o none
 miFrame6.config(bg="steelblue1", width=900)
 
-
-listbox = Listbox(miFrame6,fg = "blue", bg = "steelblue1",
+mlb = MultiListBox.MultiListbox(miFrame6, (('Id', 5), ('CIF', 15), ('Nombre', 90), ('Tipo', 6)))
+""" listbox = Listbox(miFrame6,fg = "blue", bg = "steelblue1",
                    font=("Speak Pro",9), selectmode="browser")
 listbox.grid(row=1,column=0,sticky="e", padx=10, pady=10)
 #listbox.pack(fill="both",expand=True)
-#listbox.pack()
+#listbox.pack() """
 
-scrollbar = Scrollbar(miFrame6, command=listbox.yview)
-scrollbar.grid(row=1,column=2, sticky="nsew")
+""" scrollbar = Scrollbar(miFrame6, command=listbox.yview)
+scrollbar.grid(row=1,column=2, sticky="nsew") """
 #scrollbar.pack(side=RIGHT, fill=Y)
 
-listbox.config(width=90,yscrollcommand=scrollbar.set)
+mlb.config(width=206)
+mlb.pack(expand=YES,fill=Y)
+#mlb.pack()
 
-def prueba(event):
-    cs = listbox.curselection()
-    cadena=listbox.get(cs)
+def selectMlb(event):
+    cs=mlb.curselection()
+    cadena=mlb.get(cs)
     buscoID=cadena[0]
     miId.set(buscoID)
     sel()
 
-listbox.bind('<Double-1>', prueba)
+mlb.bind('<Double-Button-1>', selectMlb)
 
 cargaLista()
-scrollbar.config(command=listbox.yview)
+""" listbox.config(width=90,yscrollcommand=scrollbar.set) """
+
+""" def prueba(event):
+    cs = mlb.curselection()
+    cadena=mlb.get(cs)
+    buscoID=cadena[0]
+    miId.set(buscoID)
+    sel()
+
+#listbox.bind('<Double-1>', prueba)
+
+cargaLista()
+scrollbar.config(command=listbox.yview) """
 #==========BOTONES==========
 """ miFrame5b=Frame()
 miFrame5b.pack(fill="both", expand=True, side="left") #Fill usa nomenclatura deejes de coordenadas X, Y, both o none
