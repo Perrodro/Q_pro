@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 import sqlite3
 import MultiListBox, querys
+import subprocess
 
 dbName="jurQ_DB"
 
@@ -36,7 +37,12 @@ def buscar(*args):
     mySql=mySql + ' AND TIPO LIKE "%' + datos[2] + '%"'
     mySql=mySql + ' AND CIF LIKE "%' + datos[3] + '%"'
     #mySql=mySql + ' AND DIRECCION LIKE "%' + datos[4] + '%"'
-    
+
+    labelId.set("")
+    labelSociedad.set("")
+    labelTipo.set("")
+    labelCIF.set("")
+
     #print(mySql)
 
     cargaLista(mySql)    
@@ -56,6 +62,13 @@ def sel():
         labelCIF.set(soc[3])
     
     botonEliminar.config(state="normal")
+
+def volver():
+    root.destroy()
+    subprocess.run(["python", "InicioBasico.pyw"])
+
+def abrir():
+    subprocess.run(["python", "frmSociedad.pyw"])
 
 def selectMlb(event):
     cs=mlb.curselection()
@@ -171,12 +184,12 @@ miFrame5=Frame()
 miFrame5.pack(fill="both", expand=True) #Fill usa nomenclatura deejes de coordenadas X, Y, both o none
 miFrame5.config(bg="steelblue3", width=900)
 
-botonCancelar=Button(miFrame5,text="Salir", font=("Speak Pro",11),fg = "blue", 
-                     cursor="hand2", width=10)
+botonCancelar=Button(miFrame5,text="Volver", font=("Speak Pro",11),fg = "blue", 
+                     cursor="hand2", width=10, command=volver)
 botonCancelar.grid(row=1,column=0,sticky="e", padx=10, pady=10)
 
 botonNuevo=Button(miFrame5,text="Nuevo", font=("Speak Pro",11),fg = "blue", 
-                     cursor="hand2",width=10)
+                     cursor="hand2",width=10,command=abrir)
 botonNuevo.grid(row=1,column=1,sticky="e", padx=10, pady=10)
 
 """ botonBuscar=Button(miFrame5,text="Buscar", font=("Speak Pro",11), fg = "blue",

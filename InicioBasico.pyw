@@ -9,11 +9,11 @@ dbName="jurQ_DB"
 
 #==========FUNCIONES==========
 def abrirSociedades():
-    subprocess.Popen(["python", "Sociedades.py"])
-    #Sociedades.crear_Toplevel(root)
-
+    root.destroy()
+    subprocess.run(["python", "lstSociedades.pyw"])
+    
 root=Tk()
-#root.iconbitmap("T.ico")
+root.iconbitmap("T.ico")
 root.title("Inicio")
 
 
